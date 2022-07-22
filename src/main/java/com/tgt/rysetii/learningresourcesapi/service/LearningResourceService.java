@@ -52,4 +52,58 @@ public class LearningResourceService {
         LearningResource learningResource = new LearningResource(id,resourceName,costPrice,sellingPrice,learningResourceStatus,createdDate,publishedDate,retiredDate);
         return learningResource;
     }
+    public void saveLearningResources(List<LearningResource> learningResources){
+        populateLearningResourcesToCsv(learningResources);
+    }
+
+    private void populateLearningResourcesToCsv(List<LearningResource> learningResources){
+        final String delimiter = ",";
+        try {
+            FileWriter file = new FileWriter("LearningResources.csv",true);
+            BufferedWriter bufferedWriter = new BufferedWriter(file);
+            for(LearningResource learningResource:learningResources){
+                bufferedWriter.newLine();
+                StringBuffer line = new StringBuffer();
+                line.append(learningResource.getId());
+                line.append(delimiter);
+                line.append(learningResource.getProductName());
+                line.append(delimiter);
+                line.append(learningResource.getCostPrice());
+                line.append(delimiter);
+                line.append(learningResource.getSellingPrice());
+                line.append(delimiter);
+                line.append(learningResource.getLearningResourceStatus());
+                line.append(delimiter);
+                line.append(learningResource.getCreatedDate());
+                line.append(delimiter);
+                line.append(learningResource.getPublishedDate());
+                line.append(delimiter);
+                line.append(learningResource.getRetiredDate());
+                line.append(delimiter);
+            }
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Double> getProfitMargin(){
+        List<LearningResource> learningResources = getLearningResources();
+        List<Double> profitMargin = learningResources.stream().map(e -> ((e.getSellingPrice()-e.getCostPrice())/e.getSellingPrice())).collect(Collectors.toList());
+        return profitMargin;
+    }
+
+    public List<LearningResource> sortLearningResourcesByProfitMargin(){
+        List<LearningResource> learningResources = getLearningResources();
+
+        learningResources.sort((lr1, lr2) -> {
+            Double profitMargin1 = (lr1.getSellingPrice() - lr1.getCostPrice())/lr1.getSellingPrice();
+            Double profitMargin2 = (lr2.getSellingPrice() - lr2.getCostPrice())/lr2.getSellingPrice();
+
+            return profitMargin2.compareTo(profitMargin1) ;
+        });
+
+        return learningResources;
+    }
 }
